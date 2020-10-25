@@ -1,4 +1,7 @@
 dist: trusty
+language: java
+jdk:
+  - openjdk11
 
 jobs:
   include:
