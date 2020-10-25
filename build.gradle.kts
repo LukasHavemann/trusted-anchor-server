@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.3.72"
     kotlin("plugin.spring") version "1.3.72"
     kotlin("plugin.jpa") version "1.3.72"
+
 }
 
 group = "de.trusted.anchor"
@@ -30,7 +31,9 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("io.projectreactor.tools:blockhound")
+
+    // custom dependcys. BlockHound keine Auswirkung in Prod
+    implementation("io.projectreactor.tools:blockhound:1.0.4.RELEASE")
 }
 
 tasks.withType<Test> {
