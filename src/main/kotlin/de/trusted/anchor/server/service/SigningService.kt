@@ -7,7 +7,7 @@ import java.time.Instant
 /**
  * @author Lukas Havemann
  */
-class HashSigningService {
+class SigningService {
 
     @Autowired
     lateinit var repository: SignedHashRepository

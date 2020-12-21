@@ -30,10 +30,13 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+
+
     testImplementation("io.projectreactor:reactor-test")
 
     // custom dependcys. BlockHound keine Auswirkung in Prod
     implementation("io.projectreactor.tools:blockhound:1.0.4.RELEASE")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.67")
 }
 
 tasks.withType<Test> {
@@ -46,3 +49,4 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "11"
     }
 }
+
