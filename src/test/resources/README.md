@@ -13,6 +13,8 @@ https://serverfault.com/questions/979094/openssl-keeps-creating-v1-certificate-i
 
 ab -l -k -n 10000 -c 10 http://localhost:8080/signHash/SomeValue
 
+ab -r -l -k -n 10000 -c 500 http://localhost:8080/signHash/SomeValue
+
 ### First Run single request
 
 Benchmarking localhost (be patient)

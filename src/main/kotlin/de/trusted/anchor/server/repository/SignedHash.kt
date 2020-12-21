@@ -13,15 +13,15 @@ import javax.persistence.Id
  * @author Lukas Havemann
  */
 @Repository
-interface SignedHashRepository : CrudRepository<SingedHash, Long> {
+interface SignedHashRepository : CrudRepository<SignedHash, Long> {
     //  fun findBySignedAt(singedAt: Instant): SingedHash?
 
-    @Query(value = "SELECT max(id) FROM SingedHash")
+    @Query(value = "SELECT max(id) FROM SignedHash")
     fun getMaxId(): Long?
 }
 
 @Entity
-data class SingedHash(
+data class SignedHash(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long,

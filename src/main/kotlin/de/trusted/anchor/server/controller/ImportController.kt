@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 /**
  * @author Lukas Havemann
@@ -28,8 +29,7 @@ class ImportController {
         path = ["/signHash/{hash}"],
         produces = [MediaType.TEXT_HTML_VALUE]
     )
-    fun signHash(@PathVariable("hash") hash: String): ByteArray {
-        val signedHash = notaryService.sign(hash)
-        return signedHash.encoded
+    fun signHash(@PathVariable("hash") hash: String): Mono<ByteArray> {
+        return notaryService.sign(hash).map { it.timeStampToken.encoded }
     }
 }
