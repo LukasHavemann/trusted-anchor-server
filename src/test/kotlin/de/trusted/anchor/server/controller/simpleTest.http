@@ -1,1 +1,8 @@
-GET localhost:8080/signHash/ThisIsMyHash
+GET localhost:8080/signHash/ThisIsMyFirstHash
+
+### insert second for testing
+GET localhost:8080/signHash/ThisIsMySecondHash
+
+
+### insert third for testing
+GET localhost:8080/signHash/ThisIsMySecondHash
