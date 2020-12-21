@@ -18,10 +18,10 @@ interface SignedHashRepository : CrudRepository<SingedHash, Long> {
 
 @Entity
 data class SingedHash(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
-    val SignedAt: Instant,
-    val hashValue: String,
-    val application: String
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        val id: Long,
+        val SignedAt: Instant,
+        val hashValue: String,
+        val application: String
 )
