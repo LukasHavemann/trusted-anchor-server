@@ -12,15 +12,15 @@ import java.time.Duration
 import java.time.Instant
 
 @SpringBootTest
-internal class SigningServiceTest {
+internal class TimestampingServiceTest {
 
     @Autowired
-    lateinit var signingService: SigningService
+    lateinit var timestampingService: TimestampingService
 
     @Test
     fun simpleSmokeTest() {
-        val timeStampResponse = signingService.signHash("aSimpleHash")
-        assertTrue(signingService.validate(timeStampResponse.timeStampToken))
+        val timeStampResponse = timestampingService.signHash("aSimpleHash")
+        assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
     }
 
     @Test
@@ -28,8 +28,8 @@ internal class SigningServiceTest {
         runBlocking {
             (0..1000).map {
                 async(Dispatchers.Default) {
-                    val timeStampResponse = signingService.signHash("aSimpleHash" + it)
-                    assertTrue(signingService.validate(timeStampResponse.timeStampToken))
+                    val timeStampResponse = timestampingService.signHash("aSimpleHash" + it)
+                    assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
                 }
             }.awaitAll()
         }
@@ -42,8 +42,8 @@ internal class SigningServiceTest {
             (0..100).map { // is a shorter way to write IntRange(0, 10)
                 async(Dispatchers.Default) { // async means "concurrently", context goes here
                     for (i in (0..100)) {
-                        val timeStampResponse = signingService.signHash("aSimpleHash" + i * it + it)
-                        assertTrue(signingService.validate(timeStampResponse.timeStampToken))
+                        val timeStampResponse = timestampingService.signHash("aSimpleHash" + i * it + it)
+                        assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
                     }
                 }
             }.awaitAll() // waits all of them
@@ -57,8 +57,8 @@ internal class SigningServiceTest {
     fun simpleSingleThreadedSmokRuneTest() {
         val before = Instant.now()
         for (j in 0..10000) {
-            val timeStampResponse = signingService.signHash("aSimpleHash" + j)
-            assertTrue(signingService.validate(timeStampResponse.timeStampToken))
+            val timeStampResponse = timestampingService.signHash("aSimpleHash" + j)
+            assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
         }
 
         val after = Instant.now()

@@ -16,23 +16,28 @@ import javax.annotation.PostConstruct
  * @author Lukas Havemann
  */
 @Service
-class SigningService {
+class TimestampingService : Loggable {
 
     @Autowired
     lateinit var signingContextFactory: SigningContextFactory
 
-    lateinit var signingContext: ThreadLocal<SigningContext>
+    lateinit var timestampingContext: ThreadLocal<TimestampingContext>
 
     val serialNumber: AtomicLong = AtomicLong()
 
+    fun setSerialNumber(serialNumber: Long) {
+        logger().info("setting serialnumber to " + serialNumber)
+        this.serialNumber.set(serialNumber)
+    }
+
     @PostConstruct
     fun init() {
-        signingContext = ThreadLocal.withInitial({ -> signingContextFactory.getContext() })
+        timestampingContext = ThreadLocal.withInitial({ -> signingContextFactory.getContext() })
     }
 
     fun signHash(hash: String): TimeStampResponse {
-        val request = signingContext.get().timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, ByteArray(32))
-        return signingContext.get().timeStampResponseGenerator.generate(
+        val request = timestampingContext.get().timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, ByteArray(32))
+        return timestampingContext.get().timeStampResponseGenerator.generate(
             request,
             BigInteger.valueOf(serialNumber.incrementAndGet()),
             Date()
@@ -44,7 +49,7 @@ class SigningService {
             tsToken.validate(
                 JcaSimpleSignerInfoVerifierBuilder()
                     .setProvider(BouncyCastleProvider.PROVIDER_NAME)
-                    .build(signingContext.get().certificate)
+                    .build(timestampingContext.get().certificate)
             )
 
             return true

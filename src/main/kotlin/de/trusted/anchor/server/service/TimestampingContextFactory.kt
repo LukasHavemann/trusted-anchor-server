@@ -36,7 +36,7 @@ class SigningContextFactory {
         certs = JcaCertStore(Arrays.asList(certificate))
     }
 
-    fun getContext(): SigningContext {
+    fun getContext(): TimestampingContext {
         val tsTokenGen = TimeStampTokenGenerator(
             JcaSimpleSignerInfoGeneratorBuilder().build("SHA256withRSA", privateKey, certificate),
             SHA256DigestCalculator(),
@@ -44,7 +44,7 @@ class SigningContextFactory {
         )
 
         tsTokenGen.addCertificates(certs)
-        return SigningContext(
+        return TimestampingContext(
             TimeStampRequestGenerator(),
             TimeStampResponseGenerator(tsTokenGen, TSPAlgorithms.ALLOWED),
             certificate
@@ -52,7 +52,7 @@ class SigningContextFactory {
     }
 }
 
-data class SigningContext(
+data class TimestampingContext(
     val timeStampRequestGenerator: TimeStampRequestGenerator,
     val timeStampResponseGenerator: TimeStampResponseGenerator,
     val certificate: X509Certificate
