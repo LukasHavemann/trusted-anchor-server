@@ -30,6 +30,13 @@ class ImportController {
         produces = [MediaType.TEXT_HTML_VALUE]
     )
     fun signHash(@PathVariable("hash") hash: String): Mono<ByteArray> {
-        return notaryService.sign(hash).map { it.timeStampToken.encoded }
+        // hex reprensentation
+        if (hash.length != 64) {
+            throw IllegalArgumentException("invalid hash " + hash)
+        }
+
+        return notaryService
+            .sign(hash)
+            .map { it.timeStampToken.encoded }
     }
 }

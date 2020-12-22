@@ -7,9 +7,11 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.tsp.TSPAlgorithms
 import org.bouncycastle.tsp.TimeStampResponse
 import org.bouncycastle.tsp.TimeStampToken
+import org.bouncycastle.util.encoders.Hex
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigInteger
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import javax.annotation.PostConstruct
@@ -37,13 +39,15 @@ class TimestampingService : Loggable {
         timestampingContext = ThreadLocal.withInitial({ -> signingContextFactory.getContext() })
     }
 
-    fun signHash(hash: String): TimeStampResponse {
-        val request = timestampingContext.get().timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, ByteArray(32))
-        return timestampingContext.get().timeStampResponseGenerator.generate(
+    fun signHash(request: TimestampRequest): TimestampResponse {
+        val request = timestampingContext.get().timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, request.hash)
+        val now = Date()
+        val response = timestampingContext.get().timeStampResponseGenerator.generate(
             request,
             BigInteger.valueOf(serialNumber.incrementAndGet()),
-            Date()
+            now
         )
+        return TimestampResponse(now.toInstant(), response)
     }
 
     fun validate(tsToken: TimeStampToken): Boolean {
@@ -60,3 +64,21 @@ class TimestampingService : Loggable {
         }
     }
 }
+
+class TimestampRequest {
+
+    var hash: ByteArray
+
+    constructor(hex: String) {
+        hash = Hex.decode(hex)
+    }
+
+    constructor(hash: ByteArray) {
+        this.hash = hash
+    }
+}
+
+data class TimestampResponse(
+    val time: Instant,
+    val token: TimeStampResponse
+)

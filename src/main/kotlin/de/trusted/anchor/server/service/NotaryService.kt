@@ -3,6 +3,7 @@ package de.trusted.anchor.server.service
 import de.trusted.anchor.server.base.Batcher
 import de.trusted.anchor.server.repository.SignedHash
 import de.trusted.anchor.server.repository.SignedHashRepository
+import de.trusted.anchor.server.service.timestamping.TimestampRequest
 import de.trusted.anchor.server.service.timestamping.TimestampingService
 import org.bouncycastle.tsp.TimeStampResponse
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,18 +39,18 @@ class NotaryService : Loggable {
         logger().fine({ "processing batch of " + workToDo.size })
         for (work in workToDo) {
             val hash = work.t1
-            val signHash = timestampingService.signHash(hash)
+            val response = timestampingService.signHash(TimestampRequest(hash))
             toBeInserted.add(
                 SignedHash(
                     0,
-                    signHash.timeStampToken.timeStampInfo.genTime.toInstant(),
+                    response.time,
                     hash,
                     "some",
-                    signHash.timeStampToken.encoded
+                    response.token.encoded
                 )
             )
             toBeNotfied.add(Runnable {
-                work.t2.onNext(signHash)
+                work.t2.onNext(response.token)
             })
         }
 

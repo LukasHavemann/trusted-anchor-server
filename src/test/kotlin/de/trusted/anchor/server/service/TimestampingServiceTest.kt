@@ -1,5 +1,6 @@
 package de.trusted.anchor.server.service
 
+import de.trusted.anchor.server.service.timestamping.TimestampRequest
 import de.trusted.anchor.server.service.timestamping.TimestampingService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -9,8 +10,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import java.time.Duration
-import java.time.Instant
 
 @SpringBootTest
 internal class TimestampingServiceTest {
@@ -20,49 +19,27 @@ internal class TimestampingServiceTest {
 
     @Test
     fun simpleSmokeTest() {
-        val timeStampResponse = timestampingService.signHash("aSimpleHash")
-        assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
+        val timeStampResponse =
+            timestampingService.signHash(TimestampRequest("8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c84e"))
+        assertTrue(timestampingService.validate(timeStampResponse.token.timeStampToken))
     }
 
     @Test
-     fun isThreadSafe() {
+    fun isThreadSafe() {
         runBlocking {
             (0..1000).map {
                 async(Dispatchers.Default) {
-                    val timeStampResponse = timestampingService.signHash("aSimpleHash" + it)
-                    assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
+                    val timeStampResponse = timestampingService.signHash(
+                        TimestampRequest(
+                            String.format(
+                                "8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064%4d",
+                                it
+                            )
+                        )
+                    )
+                    assertTrue(timestampingService.validate(timeStampResponse.token.timeStampToken))
                 }
             }.awaitAll()
         }
-    }
-
-    @Test
-    fun simpleSmokRunBatchedTest() {
-        val before = Instant.now()
-        runBlocking { // limits the scope of concurrency
-            (0..100).map { // is a shorter way to write IntRange(0, 10)
-                async(Dispatchers.Default) { // async means "concurrently", context goes here
-                    for (i in (0..100)) {
-                        val timeStampResponse = timestampingService.signHash("aSimpleHash" + i * it + it)
-                        assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
-                    }
-                }
-            }.awaitAll() // waits all of them
-        }
-
-        val after = Instant.now()
-        print(Duration.between(before, after))
-    }
-
-    @Test
-    fun simpleSingleThreadedSmokRuneTest() {
-        val before = Instant.now()
-        for (j in 0..10000) {
-            val timeStampResponse = timestampingService.signHash("aSimpleHash" + j)
-            assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
-        }
-
-        val after = Instant.now()
-        print(Duration.between(before, after))
     }
 }
