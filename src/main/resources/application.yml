@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: test
+
+  jpa:
+    database: POSTGRESQL
+    generate-ddl: true
+    properties.hibernate:
+      ddl-auto: create-drop
+      show_sql: false
+      use_sql_comments: false
+      format_sql: false
+      jdbc.lob.non_contextual_creation: true
+
+# loadtest configuration
+logging.level:
+  root: INFO
+  de.trusted.anchor.server.service: DEBUG

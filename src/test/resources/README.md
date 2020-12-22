@@ -17,6 +17,7 @@ ab -r -l -k -n 10000 -c 500 http://localhost:8080/signHash/SomeValue
 
 ### First Run single request
 
+```
 Benchmarking localhost (be patient)
 Completed 1000 requests
 Completed 2000 requests
@@ -67,4 +68,64 @@ Percentage of the requests served within a certain time (ms)
 98%     90
 99%    116
 100%    351 (longest request)
+```
+
 ### Second run Batching
+
+```
+lukashavemann@Air-von-Lukas ~ % ab -l -k -n 10000 -c 150 http://localhost:8080/signHash/SomeValue
+This is ApacheBench, Version 2.3 <$Revision: 1879490 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 1000 requests
+Completed 2000 requests
+Completed 3000 requests
+Completed 4000 requests
+Completed 5000 requests
+Completed 6000 requests
+Completed 7000 requests
+Completed 8000 requests
+Completed 9000 requests
+Completed 10000 requests
+Finished 10000 requests
+
+
+Server Software:        
+Server Hostname:        localhost
+Server Port:            8080
+
+Document Path:          /signHash/SomeValue
+Document Length:        Variable
+
+Concurrency Level:      150
+Time taken for tests:   19.326 seconds
+Complete requests:      10000
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      8610000 bytes
+HTML transferred:       7960000 bytes
+Requests per second:    517.45 [#/sec] (mean)
+Time per request:       289.885 [ms] (mean)
+Time per request:       1.933 [ms] (mean, across all concurrent requests)
+Transfer rate:          435.08 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0  10.7      0    1071
+Processing:    57  287  66.6    280     764
+Waiting:       51  287  66.6    279     764
+Total:         57  288  67.2    280    1264
+
+Percentage of the requests served within a certain time (ms)
+  50%    280
+  66%    297
+  75%    309
+  80%    317
+  90%    342
+  95%    382
+  98%    476
+  99%    626
+ 100%   1264 (longest request)
+```

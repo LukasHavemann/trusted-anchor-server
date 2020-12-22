@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoProcessor
-import reactor.core.scheduler.Schedulers
 import reactor.util.function.Tuple2
+import java.util.function.Consumer
 import javax.annotation.PostConstruct
 import javax.transaction.Transactional
 
@@ -26,10 +26,9 @@ class NotaryService : Loggable {
     @PostConstruct
     fun init() {
         timestampingService.setSerialNumber(repository.getMaxId() ?: 0)
-        batcher.listen()
-            .subscribeOn(Schedulers.parallel())
-            .map({ handleBatch(it) })
-            .subscribe()
+        batcher.start(Consumer {
+            handleBatch(it)
+        })
     }
 
     @Transactional
@@ -50,7 +49,9 @@ class NotaryService : Loggable {
                     signHash.timeStampToken.encoded
                 )
             )
-            toBeNotfied.add(Runnable { work.t2.onNext(signHash) })
+            toBeNotfied.add(Runnable {
+                work.t2.onNext(signHash)
+            })
         }
 
         repository.saveAll(toBeInserted)
