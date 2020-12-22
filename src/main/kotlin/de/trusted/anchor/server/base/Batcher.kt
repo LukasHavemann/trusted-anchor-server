@@ -1,5 +1,6 @@
-package de.trusted.anchor.server.service
+package de.trusted.anchor.server.base
 
+import de.trusted.anchor.server.service.logger
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoProcessor
 import reactor.util.function.Tuple2
@@ -7,7 +8,6 @@ import reactor.util.function.Tuples
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.locks.LockSupport
-import java.util.function.Consumer
 
 
 internal class Batcher<I, O> {
@@ -16,17 +16,17 @@ internal class Batcher<I, O> {
 
     val workerThreads = 16
 
-    fun start(task: Consumer<List<Tuple2<I, MonoProcessor<O>>>>) {
+    fun start(task: Function1<List<Tuple2<I, MonoProcessor<O>>>, Unit>) {
         (0..workerThreads).forEach(
             {
                 val thread = Thread() {
                     while (true) {
                         val value = collectBatch()
                         if (value.isEmpty()) {
-                            Thread.sleep(50)
+                            Thread.sleep(10)
                             continue
                         }
-                        task.accept(value)
+                        task.invoke(value)
                     }
                 }
 

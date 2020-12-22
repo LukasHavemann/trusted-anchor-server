@@ -1,4 +1,4 @@
-package de.trusted.anchor.server
+package de.trusted.anchor.server.service.timestamping
 
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier

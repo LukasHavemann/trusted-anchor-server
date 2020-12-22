@@ -1,5 +1,6 @@
 package de.trusted.anchor.server.service
 
+import de.trusted.anchor.server.service.timestamping.TimestampingService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

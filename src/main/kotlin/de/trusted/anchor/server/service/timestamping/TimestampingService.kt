@@ -1,5 +1,7 @@
-package de.trusted.anchor.server.service
+package de.trusted.anchor.server.service.timestamping
 
+import de.trusted.anchor.server.service.Loggable
+import de.trusted.anchor.server.service.logger
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.tsp.TSPAlgorithms

@@ -1,14 +1,15 @@
 package de.trusted.anchor.server.service
 
+import de.trusted.anchor.server.base.Batcher
 import de.trusted.anchor.server.repository.SignedHash
 import de.trusted.anchor.server.repository.SignedHashRepository
+import de.trusted.anchor.server.service.timestamping.TimestampingService
 import org.bouncycastle.tsp.TimeStampResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoProcessor
 import reactor.util.function.Tuple2
-import java.util.function.Consumer
 import javax.annotation.PostConstruct
 import javax.transaction.Transactional
 
@@ -26,9 +27,7 @@ class NotaryService : Loggable {
     @PostConstruct
     fun init() {
         timestampingService.setSerialNumber(repository.getMaxId() ?: 0)
-        batcher.start(Consumer {
-            handleBatch(it)
-        })
+        batcher.start(::handleBatch)
     }
 
     @Transactional

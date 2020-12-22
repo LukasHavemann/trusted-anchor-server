@@ -1,6 +1,6 @@
-package de.trusted.anchor.server.service
+package de.trusted.anchor.server.service.timestamping
 
-import de.trusted.anchor.server.SHA256DigestCalculator
+import de.trusted.anchor.server.service.KeyService
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.cert.jcajce.JcaCertStore
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoGeneratorBuilder
