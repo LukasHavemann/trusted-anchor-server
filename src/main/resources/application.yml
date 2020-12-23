@@ -18,4 +18,4 @@ spring:
 # loadtest configuration
 logging.level:
   root: INFO
-  de.trusted.anchor.server.service: DEBUG
+  de.trusted.anchor.server.service: TRACE

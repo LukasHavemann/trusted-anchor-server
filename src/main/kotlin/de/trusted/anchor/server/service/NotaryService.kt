@@ -4,15 +4,14 @@ import de.trusted.anchor.server.base.BatchedWorkerPool
 import de.trusted.anchor.server.repository.SignedHash
 import de.trusted.anchor.server.repository.SignedHashRepository
 import de.trusted.anchor.server.service.publication.PublicationService
-import de.trusted.anchor.server.service.timestamping.TimestampRequest
 import de.trusted.anchor.server.service.timestamping.TimestampingService
 import org.bouncycastle.tsp.TimeStampResponse
-import org.bouncycastle.util.encoders.Hex
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoProcessor
 import reactor.util.function.Tuple2
+import java.util.stream.Collectors
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import javax.transaction.Transactional
@@ -29,11 +28,11 @@ class NotaryService : Loggable {
     @Autowired
     private lateinit var repository: SignedHashRepository
 
-    private val batchedWorkerPool: BatchedWorkerPool<ByteArray, TimeStampResponse> = BatchedWorkerPool()
+    private val batchedWorkerPool: BatchedWorkerPool<SigningRequest, TimeStampResponse> = BatchedWorkerPool()
 
     @PostConstruct
     fun init() {
-        timestampingService.setSerialNumber(repository.getMaxId() ?: 0)
+        publicationService.setSerialNumber(repository.getMaxId() ?: 0)
         batchedWorkerPool.start(::handleBatch)
     }
 
@@ -43,36 +42,36 @@ class NotaryService : Loggable {
     }
 
     @Transactional
-    fun handleBatch(workToDo: List<Tuple2<ByteArray, MonoProcessor<TimeStampResponse>>>) {
+    fun handleBatch(workToDo: List<Tuple2<SigningRequest, MonoProcessor<TimeStampResponse>>>) {
         val toBeInserted = ArrayList<SignedHash>(workToDo.size)
         val toBeNotfied = ArrayList<Runnable>(workToDo.size)
 
         logger().fine({ "processing batch of " + workToDo.size })
+        publicationService.publish(workToDo.stream().map { it.t1 }.collect(Collectors.toList()))
         for (work in workToDo) {
-            val hash = work.t1
-            val response = timestampingService.timestamp(TimestampRequest(hash))
+            val signingRequest = work.t1
+            val response = timestampingService.timestamp(signingRequest)
             toBeInserted.add(
                 SignedHash(
-                    response.id,
-                    response.time,
-                    hash,
+                    signingRequest.id!!,
+                    signingRequest.receivedAt.toInstant(),
+                    signingRequest.hash,
                     "some",
-                    response.token.encoded
+                    response.encoded
                 )
             )
             toBeNotfied.add(Runnable {
-                work.t2.onNext(response.token)
+                work.t2.onNext(response)
             })
         }
 
-        publicationService.register(toBeInserted)
         repository.saveAll(toBeInserted)
 
         toBeNotfied.forEach({ it.run() })
     }
 
-    fun sign(hash: String): Mono<TimeStampResponse> {
-        logger().finer({ "signing request accepted " + hash })
-        return batchedWorkerPool.add(Hex.decode(hash))
+    fun sign(signingRequest: SigningRequest): Mono<TimeStampResponse> {
+        logger().finer({ "signing request accepted " + signingRequest })
+        return batchedWorkerPool.add(signingRequest)
     }
 }

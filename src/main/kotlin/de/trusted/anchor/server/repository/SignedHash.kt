@@ -21,7 +21,7 @@ interface SignedHashRepository : CrudRepository<SignedHash, Long> {
 @Entity
 data class SignedHash(
     @Id
-    val id: BigInteger,
+    val id: Long,
     val signedAt: Instant,
     val hashValue: ByteArray,
     val application: String,

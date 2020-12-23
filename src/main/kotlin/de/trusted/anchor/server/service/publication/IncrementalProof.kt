@@ -1,5 +1,6 @@
 package de.trusted.anchor.server.service.publication
 
+import de.trusted.anchor.server.service.timestamping.SHA256DigestCalculator
 import org.bouncycastle.operator.DigestCalculator
 import java.io.OutputStream
 import java.util.*
@@ -10,10 +11,9 @@ import java.util.*
  */
 class IncrementalProof(
     val outputStream: OutputStream,
-    val factory: Function1<Unit, DigestCalculator>
+    val factory: Function1<Unit, DigestCalculator> = { SHA256DigestCalculator() }
 ) {
 
-    // private val outputStream: OutputStream = BufferedOutputStream(FileOutputStream(proofName + ".txt"));
     private var id: Int = 0
     private var maxFulltreeWidth = 0
     private val nodes: Stack<ByteArray> = Stack()
@@ -95,46 +95,3 @@ class IncrementalProof(
         return id == 0
     }
 }
-
-/**
-1 = 0
-2 = 1
-3 = 0
-4 = 2
-
-5 = 0
-6 = 1
-7 = 0
-8 = 3
-
-9 = 0
-10 = 1
-11 = 0
-12 = 2
-
-13 = 0
-14 = 1
-15 = 0
-16 = 4
-
-17 = 0
-18 = 1
-19 = 0
-20 = 2
-
-21 = 0
-22 = 1
-23 = 0
-24 = 3
-
-25 = 0
-26 = 1
-27 = 0
-28 = 2
-
-29 = 0
-30 = 1
-31 = 0
-32 = 5
-
- */

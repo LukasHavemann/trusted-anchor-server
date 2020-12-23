@@ -1,6 +1,7 @@
 package de.trusted.anchor.server.controller
 
 import de.trusted.anchor.server.service.NotaryService
+import de.trusted.anchor.server.service.SigningRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -30,13 +31,8 @@ class ImportController {
         produces = [MediaType.TEXT_HTML_VALUE]
     )
     fun signHash(@PathVariable("hash") hash: String): Mono<ByteArray> {
-        // hex reprensentation
-        if (hash.length != 64) {
-            throw IllegalArgumentException("invalid hash " + hash)
-        }
-
         return notaryService
-            .sign(hash)
+            .sign(SigningRequest(hash))
             .map { it.timeStampToken.encoded }
     }
 }
