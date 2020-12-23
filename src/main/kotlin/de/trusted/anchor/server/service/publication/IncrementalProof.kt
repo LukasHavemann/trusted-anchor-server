@@ -2,7 +2,6 @@ package de.trusted.anchor.server.service.publication
 
 import org.bouncycastle.operator.DigestCalculator
 import java.io.OutputStream
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -16,80 +15,81 @@ class IncrementalProof(
 
     // private val outputStream: OutputStream = BufferedOutputStream(FileOutputStream(proofName + ".txt"));
     private var id: Int = 0
-    private var treeHeight = 0
-    private val nodes: LinkedList<ByteArray> = LinkedList()
+    private var maxFulltreeWidth = 0
+    private val nodes: Stack<ByteArray> = Stack()
 
     fun add(hash: ByteArray) {
-        writeNode(hash)
-        nodes.add(hash)
-        if (id % 2 == 0) {
-            var incrementalProof = computeBasendOnHead()
-            writeIncremental(incrementalProof)
-            nodes.add(incrementalProof)
+        writeAndRember(hash)
+        if (++id % 2 == 0) {
+            writeAndRember(hashTwoTopElements())
 
-            // beweise nachträglich erzeugen bei neuer spitze
-            if (isPowerOfTwo(id) && id > 2) {
-                val power = kotlin.math.log2(id.toDouble()).toInt() - 1
-                for (i in 1..power) {
-                    writeIncrementalProof()
-                }
-
-                treeHeight = id
+            // reached new tree width
+            if (isPowerOfTwo(id)) {
+                writeRecursive(id / 2)
+                maxFulltreeWidth = id
                 return
             }
 
-            // beweise für subbaum
-            val subtree = id - treeHeight
-            val power = kotlin.math.log2(subtree.toDouble()).toInt() - 1
-            println("id: " + id + " treeheight: " + treeHeight + " subtree: " + subtree + " power: " + power + " list: " + nodes.size)
-            if (isPowerOfTwo(subtree)) {
-                println("subtreegen " + power)
-                for (i in 1..power) {
-                    writeIncrementalProof()
-                }
-            }
+            // generate hashes for completed subtree
+            val subtreeWidth = findBiggestBinaryTree(id - maxFulltreeWidth, maxFulltreeWidth)
+            writeRecursive(subtreeWidth / 2)
         }
     }
 
-    private fun writeIncrementalProof() {
-        var incrementalProof1 = computeBasendOnHead()
-        writeIncremental(incrementalProof1)
-        nodes.add(incrementalProof1)
+    fun finish(): ByteArray {
+        if (id > 1) {
+            writeAndRember(hashTwoTopElements())
+        }
+
+
+        if (nodes.size > 1) {
+            finish()
+        }
+
+        return nodes.pop()
     }
 
-    fun isPowerOfTwo(x: Int): Boolean {
+    private fun findBiggestBinaryTree(subtree: Int, treeWidth: Int): Int {
+        if (subtree < 0) {
+            return -1
+        }
+
+        if (isPowerOfTwo(subtree)) {
+            return subtree
+        }
+
+        return findBiggestBinaryTree(subtree - (treeWidth / 2), treeWidth / 2)
+    }
+
+    private fun writeRecursive(value: Int) {
+        if (value <= 1) {
+            return
+        }
+
+        writeAndRember(hashTwoTopElements())
+        writeRecursive(value / 2)
+    }
+
+    private fun writeAndRember(hash: ByteArray) {
+        outputStream.write(hash)
+        nodes.add(hash)
+    }
+
+    private fun isPowerOfTwo(x: Int): Boolean {
         return x and (x - 1) == 0
     }
 
-    private fun computeBasendOnHead(): ByteArray {
+    private fun hashTwoTopElements(): ByteArray {
         val digestCalculator = factory.invoke(Unit)
-        var last = nodes.removeLast()
-        var beforeLast = nodes.removeLast()
+        val last = nodes.pop()
+        val beforeLast = nodes.pop()
         digestCalculator.outputStream.write(beforeLast)
         digestCalculator.outputStream.write(last)
         return digestCalculator.digest
     }
 
-    private fun writeNode(hash: ByteArray) {
-        val s = "N" + id++ + ": " + String(hash, StandardCharsets.UTF_8) + '\n'
-        // print(s)
-        outputStream.write(
-            s.toByteArray(
-                StandardCharsets.UTF_8
-            )
-        )
-    }
-
-    private fun writeIncremental(hash: ByteArray) {
-        var s = "I" + id + ": " + String(
-            hash,
-            StandardCharsets.UTF_8
-        ) + '\n'
-
-        //print(s)
-        outputStream.write(
-            s.toByteArray(StandardCharsets.UTF_8)
-        )
+    fun isEmpty(): Boolean {
+        return id == 0
     }
 }
 
