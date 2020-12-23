@@ -23,11 +23,11 @@ import javax.annotation.PostConstruct
 class TimestampingService : Loggable {
 
     @Autowired
-    lateinit var signingContextFactory: SigningContextFactory
+    private lateinit var signingContextFactory: SigningContextFactory
 
-    lateinit var timestampingContext: ThreadLocal<TimestampingContext>
+    private lateinit var timestampingContext: ThreadLocal<TimestampingContext>
 
-    val serialNumber: AtomicLong = AtomicLong()
+    private val serialNumber: AtomicLong = AtomicLong()
 
     fun setSerialNumber(serialNumber: Long) {
         logger().info("setting serialnumber to " + serialNumber)
@@ -39,15 +39,12 @@ class TimestampingService : Loggable {
         timestampingContext = ThreadLocal.withInitial({ -> signingContextFactory.getContext() })
     }
 
-    fun signHash(request: TimestampRequest): TimestampResponse {
-        val request = timestampingContext.get().timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, request.hash)
+    fun timestamp(request: TimestampRequest): TimestampResponse {
+        val tsRequest = timestampingContext.get().timeStampRequestGenerator.generate(TSPAlgorithms.SHA256, request.hash)
         val now = Date()
-        val response = timestampingContext.get().timeStampResponseGenerator.generate(
-            request,
-            BigInteger.valueOf(serialNumber.incrementAndGet()),
-            now
-        )
-        return TimestampResponse(now.toInstant(), response)
+        val id = BigInteger.valueOf(serialNumber.incrementAndGet())
+        val response = timestampingContext.get().timeStampResponseGenerator.generate(tsRequest, id, now)
+        return TimestampResponse(now.toInstant(), response, id)
     }
 
     fun validate(tsToken: TimeStampToken): Boolean {
@@ -80,5 +77,6 @@ class TimestampRequest {
 
 data class TimestampResponse(
     val time: Instant,
-    val token: TimeStampResponse
+    val token: TimeStampResponse,
+    val id : BigInteger
 )

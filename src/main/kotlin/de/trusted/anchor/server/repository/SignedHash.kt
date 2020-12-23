@@ -3,10 +3,9 @@ package de.trusted.anchor.server.repository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import java.math.BigInteger
 import java.time.Instant
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
 import javax.persistence.Id
 
 /**
@@ -22,10 +21,9 @@ interface SignedHashRepository : CrudRepository<SignedHash, Long> {
 @Entity
 data class SignedHash(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: BigInteger,
     val signedAt: Instant,
-    val hashValue: String,
+    val hashValue: ByteArray,
     val application: String,
     val timestampToken: ByteArray
 )
