@@ -21,39 +21,58 @@ class IncrementalProof(
 
     fun add(hash: ByteArray) {
         writeNode(hash)
+        nodes.add(hash)
         if (id % 2 == 0) {
-            var incrementalProof = computeHashWithFirst(hash)
+            var incrementalProof = computeBasendOnHead()
             writeIncremental(incrementalProof)
+            nodes.add(incrementalProof)
 
-            // beweise nachträglich erzeugen bis spitze
-            if (isPowerOfTwo(id)) {
+            // beweise nachträglich erzeugen bei neuer spitze
+            if (isPowerOfTwo(id) && id > 2) {
                 val power = kotlin.math.log2(id.toDouble()).toInt() - 1
                 for (i in 1..power) {
-                    incrementalProof = computeHashWithFirst(incrementalProof)
-                    writeIncremental(incrementalProof)
+                    writeIncrementalProof()
                 }
+
+                treeHeight = id
+                return
             }
 
-            nodes.addFirst(incrementalProof)
-        } else {
-            nodes.addFirst(hash)
+            // beweise für subbaum
+            val subtree = id - treeHeight
+            val power = kotlin.math.log2(subtree.toDouble()).toInt() - 1
+            println("id: " + id + " treeheight: " + treeHeight + " subtree: " + subtree + " power: " + power + " list: " + nodes.size)
+            if (isPowerOfTwo(subtree)) {
+                println("subtreegen " + power)
+                for (i in 1..power) {
+                    writeIncrementalProof()
+                }
+            }
         }
+    }
+
+    private fun writeIncrementalProof() {
+        var incrementalProof1 = computeBasendOnHead()
+        writeIncremental(incrementalProof1)
+        nodes.add(incrementalProof1)
     }
 
     fun isPowerOfTwo(x: Int): Boolean {
         return x and (x - 1) == 0
     }
 
-    private fun computeHashWithFirst(hash: ByteArray): ByteArray {
+    private fun computeBasendOnHead(): ByteArray {
         val digestCalculator = factory.invoke(Unit)
-        digestCalculator.outputStream.write(nodes.removeFirst())
-        digestCalculator.outputStream.write(hash)
+        var last = nodes.removeLast()
+        var beforeLast = nodes.removeLast()
+        digestCalculator.outputStream.write(beforeLast)
+        digestCalculator.outputStream.write(last)
         return digestCalculator.digest
     }
 
     private fun writeNode(hash: ByteArray) {
         val s = "N" + id++ + ": " + String(hash, StandardCharsets.UTF_8) + '\n'
-        print(s)
+        // print(s)
         outputStream.write(
             s.toByteArray(
                 StandardCharsets.UTF_8
@@ -67,7 +86,7 @@ class IncrementalProof(
             StandardCharsets.UTF_8
         ) + '\n'
 
-        print(s)
+        //print(s)
         outputStream.write(
             s.toByteArray(StandardCharsets.UTF_8)
         )
