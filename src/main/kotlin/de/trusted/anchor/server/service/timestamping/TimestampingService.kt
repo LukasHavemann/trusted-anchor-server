@@ -67,7 +67,11 @@ class TimestampRequest {
     var hash: ByteArray
 
     constructor(hex: String) {
-        hash = Hex.decode(hex)
+        try {
+            hash = Hex.decode(hex)
+        }catch (ex : Exception) {
+            throw IllegalArgumentException(hex, ex)
+        }
     }
 
     constructor(hash: ByteArray) {

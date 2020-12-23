@@ -37,16 +37,19 @@ class IncrementalProof(
     }
 
     fun finish(): ByteArray {
-        if (id > 1) {
+        if(this.isEmpty()) {
+            throw IllegalStateException("proof is empty")
+        }
+
+        if(nodes.size == 1) {
+            return nodes.pop()
+        }
+
+        if (nodes.size >= 2) {
             writeAndRember(hashTwoTopElements())
         }
 
-
-        if (nodes.size > 1) {
-            finish()
-        }
-
-        return nodes.pop()
+        return finish()
     }
 
     private fun findBiggestBinaryTree(subtree: Int, treeWidth: Int): Int {

@@ -135,6 +135,7 @@ internal class IncrementalProofTest {
             testee.add(("node" + i + "\n").toByteArray(StandardCharsets.UTF_8))
         }
         assertEquals(expected32, String(outputStream.toByteArray(), StandardCharsets.UTF_8).trim())
+        assertEquals(expected32.split("\n").last().trim(), String(testee.finish(), StandardCharsets.UTF_8).trim())
     }
 
     @Test

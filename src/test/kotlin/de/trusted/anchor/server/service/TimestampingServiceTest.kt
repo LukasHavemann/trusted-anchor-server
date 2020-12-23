@@ -33,7 +33,7 @@ internal class TimestampingServiceTest {
                     val timeStampResponse = timestampingService.timestamp(
                         TimestampRequest(
                             String.format(
-                                "8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064%4d",
+                                "8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064%04d",
                                 it
                             )
                         )
