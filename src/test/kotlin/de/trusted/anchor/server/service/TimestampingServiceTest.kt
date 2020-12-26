@@ -1,6 +1,5 @@
 package de.trusted.anchor.server.service
 
-import de.trusted.anchor.server.service.timestamping.TimestampRequest
 import de.trusted.anchor.server.service.timestamping.TimestampingService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -20,9 +19,13 @@ internal class TimestampingServiceTest {
     @Test
     fun simpleSmokeTest() {
         val timeStampResponse =
-            timestampingService.timestamp(TimestampRequest("8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c84e"))
+            timestampingService.timestamp(
+                SigningRequest("8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c84e").assignId(
+                    1
+                )
+            )
 
-        assertTrue(timestampingService.validate(timeStampResponse.token.timeStampToken))
+        assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
     }
 
     @Test
@@ -31,14 +34,14 @@ internal class TimestampingServiceTest {
             (0..1000).map {
                 async(Dispatchers.Default) {
                     val timeStampResponse = timestampingService.timestamp(
-                        TimestampRequest(
+                        SigningRequest(
                             String.format(
                                 "8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064%04d",
                                 it
                             )
-                        )
+                        ).assignId(1)
                     )
-                    assertTrue(timestampingService.validate(timeStampResponse.token.timeStampToken))
+                    assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
                 }
             }.awaitAll()
         }

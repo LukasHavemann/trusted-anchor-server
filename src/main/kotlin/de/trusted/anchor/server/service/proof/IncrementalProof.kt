@@ -1,7 +1,8 @@
-package de.trusted.anchor.server.service.publication
+package de.trusted.anchor.server.service.proof
 
 import de.trusted.anchor.server.service.timestamping.SHA256DigestCalculator
 import org.bouncycastle.operator.DigestCalculator
+import org.bouncycastle.util.encoders.Hex
 import java.io.OutputStream
 import java.util.*
 
@@ -37,11 +38,11 @@ class IncrementalProof(
     }
 
     fun finish(): ByteArray {
-        if(this.isEmpty()) {
+        if (this.isEmpty()) {
             throw IllegalStateException("proof is empty")
         }
 
-        if(nodes.size == 1) {
+        if (nodes.size == 1) {
             return nodes.pop()
         }
 
@@ -74,7 +75,7 @@ class IncrementalProof(
     }
 
     private fun writeAndRember(hash: ByteArray) {
-        outputStream.write(hash)
+        outputStream.write(Hex.encode(hash))
         nodes.add(hash)
     }
 

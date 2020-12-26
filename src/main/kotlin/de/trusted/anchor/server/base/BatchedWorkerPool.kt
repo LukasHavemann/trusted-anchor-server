@@ -56,7 +56,7 @@ class BatchedWorkerPool<I, O> {
     fun add(element: I): Mono<O> {
         val workToDo = Tuples.of<I, MonoProcessor<O>>(element, MonoProcessor.create())
         if (!toBeProcessed.offer(workToDo)) {
-            logger().warning("couldnt be processed" + element)
+            logger().warn("couldnt be processed" + element)
         }
         return workToDo.t2
     }

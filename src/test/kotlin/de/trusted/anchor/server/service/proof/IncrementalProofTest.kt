@@ -1,4 +1,4 @@
-package de.trusted.anchor.server.service.publication
+package de.trusted.anchor.server.service.proof
 
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.operator.DigestCalculator

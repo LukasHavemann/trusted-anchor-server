@@ -1,6 +1,7 @@
 package de.trusted.anchor.server.service
 
 import org.bouncycastle.util.encoders.Hex
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 class SigningRequest {
@@ -28,9 +29,15 @@ class SigningRequest {
         this.hash = hash
     }
 
-    fun assignId(id: Long) {
+    fun assignId(id: Long): SigningRequest {
         if (this.id == null) {
             this.id = id
         }
+
+        return this
+    }
+
+    override fun toString(): String {
+        return String.format("%d: %s", this.id, String(this.hash, StandardCharsets.UTF_8))
     }
 }

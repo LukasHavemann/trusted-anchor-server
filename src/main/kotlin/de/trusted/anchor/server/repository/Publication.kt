@@ -2,6 +2,7 @@ package de.trusted.anchor.server.repository
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -23,12 +24,16 @@ data class Publication(
     /**
      * from id of SignedHash
      */
-    val fromId: Long,
+    val startRound: Instant,
     /**
      * from id of SignedHash
      */
-    val toId : Long,
-    val hashId : Long,
-    val publicationId : String,
-    val publicationSystem : String
+    val finishRound : Instant,
+
+    /**
+     * head
+     */
+    val hash: ByteArray,
+    val publicationHash : String?,
+    val publicationSystem : String?
 )

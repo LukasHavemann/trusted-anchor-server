@@ -3,7 +3,7 @@ package de.trusted.anchor.server.service
 import de.trusted.anchor.server.base.BatchedWorkerPool
 import de.trusted.anchor.server.repository.SignedHash
 import de.trusted.anchor.server.repository.SignedHashRepository
-import de.trusted.anchor.server.service.publication.PublicationService
+import de.trusted.anchor.server.service.proof.CollectionService
 import de.trusted.anchor.server.service.timestamping.TimestampingService
 import org.bouncycastle.tsp.TimeStampResponse
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +23,7 @@ class NotaryService : Loggable {
     private lateinit var timestampingService: TimestampingService
 
     @Autowired
-    private lateinit var publicationService: PublicationService
+    private lateinit var collectionService: CollectionService
 
     @Autowired
     private lateinit var repository: SignedHashRepository
@@ -32,7 +32,7 @@ class NotaryService : Loggable {
 
     @PostConstruct
     fun init() {
-        publicationService.setSerialNumber(repository.getMaxId() ?: 0)
+        collectionService.setSerialNumber(repository.getMaxId() ?: 0)
         batchedWorkerPool.start(::handleBatch)
     }
 
@@ -46,8 +46,8 @@ class NotaryService : Loggable {
         val toBeInserted = ArrayList<SignedHash>(workToDo.size)
         val toBeNotfied = ArrayList<Runnable>(workToDo.size)
 
-        logger().fine({ "processing batch of " + workToDo.size })
-        publicationService.publish(workToDo.stream().map { it.t1 }.collect(Collectors.toList()))
+        logger().debug("processing batch of " + workToDo.size)
+        collectionService.publish(workToDo.stream().map { it.t1 }.collect(Collectors.toList()))
         for (work in workToDo) {
             val signingRequest = work.t1
             val response = timestampingService.timestamp(signingRequest)
@@ -71,7 +71,7 @@ class NotaryService : Loggable {
     }
 
     fun sign(signingRequest: SigningRequest): Mono<TimeStampResponse> {
-        logger().finer({ "signing request accepted " + signingRequest })
+        logger().trace("signing request accepted " + signingRequest)
         return batchedWorkerPool.add(signingRequest)
     }
 }

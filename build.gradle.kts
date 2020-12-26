@@ -37,6 +37,8 @@ dependencies {
     // custom dependcys. BlockHound keine Auswirkung in Prod
     implementation("io.projectreactor.tools:blockhound:1.0.4.RELEASE")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.67")
+    implementation("org.apache.logging.log4j:log4j-api:2.8")
+    implementation("org.apache.logging.log4j:log4j-core:2.8")
 }
 
 tasks.withType<Test> {

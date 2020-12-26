@@ -1,11 +1,13 @@
 package de.trusted.anchor.server.service
 
-import java.util.logging.Logger
+
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
 
 fun <T : Any> logger(forClass: Class<T>): Logger {
-    return Logger.getLogger(unwrapCompanionClass(forClass).name)
+    return LoggerFactory.getLogger(unwrapCompanionClass(forClass).name)
 }
 
 // unwrap companion class to enclosing class given a Java Class
