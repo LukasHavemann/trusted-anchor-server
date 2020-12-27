@@ -71,7 +71,7 @@ class NotaryService : Loggable {
     }
 
     fun sign(signingRequest: SigningRequest): Mono<TimeStampResponse> {
-        logger().trace("signing request accepted " + signingRequest)
+        if (logger().isTraceEnabled) logger().trace("signing request accepted " + signingRequest)
         return batchedWorkerPool.add(signingRequest)
     }
 }

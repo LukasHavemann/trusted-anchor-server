@@ -29,7 +29,7 @@ class CollectionService : Loggable {
     private val toBePublished: Queue<List<SigningRequest>> = ConcurrentLinkedQueue()
     private val serialNumber: AtomicLong = AtomicLong()
     private val newRound = AtomicBoolean()
-    val backlog = PriorityQueue<SigningRequest>(Comparator.comparing({ sreq: SigningRequest -> sreq.id!! }))
+    private val backlog = PriorityQueue<SigningRequest>(Comparator.comparing({ sreq: SigningRequest -> sreq.id!! }))
 
     private var startPointer: Long = 0
     private val publisher = Schedulers.newSingle("publisher")
@@ -97,7 +97,7 @@ class CollectionService : Loggable {
                 break
             }
 
-            collectionRound.add(itemToPublish.hash)
+            collectionRound.add(itemToPublish)
             startPointer++
         }
     }
@@ -123,7 +123,7 @@ class CollectionRound {
         private set
 
     private val filename = String.format(
-        "proof-%s.txt", DateTimeFormatter
+        "inc-%s.proof", DateTimeFormatter
             .ofPattern("uuuuMMddHHmmss")
             .withLocale(Locale.GERMAN)
             .withZone(ZoneId.of("UTC"))
@@ -136,8 +136,8 @@ class CollectionRound {
     var head: ByteArray? = null
         private set
 
-    fun add(hash: ByteArray) {
-        incrementalProof.add(hash)
+    fun add(request: SigningRequest) {
+        incrementalProof.add(request.hashForProof())
     }
 
     fun flush() {

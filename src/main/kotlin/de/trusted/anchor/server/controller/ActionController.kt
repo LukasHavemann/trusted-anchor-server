@@ -5,10 +5,7 @@ import de.trusted.anchor.server.service.SigningRequest
 import de.trusted.anchor.server.service.proof.CollectionService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 
 /**
@@ -42,12 +39,16 @@ class ActionController {
 
 
     @GetMapping(
-        path = ["/signHash/{hash}"],
+        path = ["/sign/hash/{hash}"],
         produces = [MediaType.TEXT_HTML_VALUE]
     )
-    fun signHash(@PathVariable("hash") hash: String): Mono<ByteArray> {
+    fun signHash(
+        @PathVariable("hash") hash: String,
+        @RequestParam appName: String,
+        @RequestParam eventId: Int
+    ): Mono<ByteArray> {
         return notaryService
-            .sign(SigningRequest(hash))
+            .sign(SigningRequest(appName, eventId, hash))
             .map { it.timeStampToken.encoded }
     }
 }

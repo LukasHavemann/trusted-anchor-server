@@ -11,8 +11,8 @@ import java.nio.charset.StandardCharsets
 
 internal class IncrementalProofTest {
 
-    lateinit var outputStream: ByteArrayOutputStream
-    lateinit var testee: IncrementalProof
+    private lateinit var outputStream: ByteArrayOutputStream
+    private lateinit var testee: IncrementalProof
 
     val expected32 = """
         node1

@@ -5,7 +5,6 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.cert.jcajce.JcaCertStore
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoGeneratorBuilder
 import org.bouncycastle.tsp.TSPAlgorithms
-import org.bouncycastle.tsp.TimeStampRequestGenerator
 import org.bouncycastle.tsp.TimeStampResponseGenerator
 import org.bouncycastle.tsp.TimeStampTokenGenerator
 import org.bouncycastle.util.Store
@@ -21,13 +20,10 @@ import javax.annotation.PostConstruct
 class SigningContextFactory {
 
     @Autowired
-    lateinit var keyService: KeyService
-
-    lateinit var privateKey: PrivateKey
-
-    lateinit var certificate: X509Certificate
-
-    lateinit var certs: Store<*>
+    private lateinit var keyService: KeyService
+    private lateinit var privateKey: PrivateKey
+    private lateinit var certificate: X509Certificate
+    private lateinit var certs: Store<*>
 
     @PostConstruct
     fun init() {
@@ -45,7 +41,6 @@ class SigningContextFactory {
 
         tsTokenGen.addCertificates(certs)
         return TimestampingContext(
-            TimeStampRequestGenerator(),
             TimeStampResponseGenerator(tsTokenGen, TSPAlgorithms.ALLOWED),
             certificate
         )
@@ -53,7 +48,6 @@ class SigningContextFactory {
 }
 
 data class TimestampingContext(
-    val timeStampRequestGenerator: TimeStampRequestGenerator,
     val timeStampResponseGenerator: TimeStampResponseGenerator,
     val certificate: X509Certificate
 )

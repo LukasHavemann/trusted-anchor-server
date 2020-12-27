@@ -18,4 +18,10 @@ spring:
 # loadtest configuration
 logging.level:
   root: INFO
-  de.trusted.anchor.server.service: TRACE
+  de.trusted.anchor.server.service: INFO
+
+  reactor:
+    netty:
+      http:
+        server:
+          accessLogEnabled: false

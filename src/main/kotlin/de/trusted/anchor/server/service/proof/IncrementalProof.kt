@@ -2,7 +2,6 @@ package de.trusted.anchor.server.service.proof
 
 import de.trusted.anchor.server.service.timestamping.SHA256DigestCalculator
 import org.bouncycastle.operator.DigestCalculator
-import org.bouncycastle.util.encoders.Hex
 import java.io.OutputStream
 import java.util.*
 
@@ -17,12 +16,12 @@ class IncrementalProof(
 
     private var id: Int = 0
     private var maxFulltreeWidth = 0
-    private val nodes: Stack<ByteArray> = Stack()
+    private val hashes: Stack<ByteArray> = Stack()
 
     fun add(hash: ByteArray) {
-        writeAndRember(hash)
+        writeAndRememberNode(hash)
         if (++id % 2 == 0) {
-            writeAndRember(hashTwoTopElements())
+            writeAndRememberProof(hashTwoTopElements())
 
             // reached new tree width
             if (isPowerOfTwo(id)) {
@@ -42,12 +41,12 @@ class IncrementalProof(
             throw IllegalStateException("proof is empty")
         }
 
-        if (nodes.size == 1) {
-            return nodes.pop()
+        if (hashes.size == 1) {
+            return hashes.pop()
         }
 
-        if (nodes.size >= 2) {
-            writeAndRember(hashTwoTopElements())
+        if (hashes.size >= 2) {
+            writeAndRememberProof(hashTwoTopElements())
         }
 
         return finish()
@@ -70,13 +69,18 @@ class IncrementalProof(
             return
         }
 
-        writeAndRember(hashTwoTopElements())
+        writeAndRememberProof(hashTwoTopElements())
         writeRecursive(value / 2)
     }
 
-    private fun writeAndRember(hash: ByteArray) {
-        outputStream.write(Hex.encode(hash))
-        nodes.add(hash)
+    private fun writeAndRememberProof(hash: ByteArray) {
+        outputStream.write(hash)
+        hashes.add(hash)
+    }
+
+    private fun writeAndRememberNode(hash: ByteArray) {
+        outputStream.write(hash)
+        hashes.add(hash)
     }
 
     private fun isPowerOfTwo(x: Int): Boolean {
@@ -85,8 +89,8 @@ class IncrementalProof(
 
     private fun hashTwoTopElements(): ByteArray {
         val digestCalculator = factory.invoke(Unit)
-        val last = nodes.pop()
-        val beforeLast = nodes.pop()
+        val last = hashes.pop()
+        val beforeLast = hashes.pop()
         digestCalculator.outputStream.write(beforeLast)
         digestCalculator.outputStream.write(last)
         return digestCalculator.digest

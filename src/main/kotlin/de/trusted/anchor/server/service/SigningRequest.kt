@@ -1,32 +1,42 @@
 package de.trusted.anchor.server.service
 
 import org.bouncycastle.util.encoders.Hex
+import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class SigningRequest {
+
+class SigningRequest(
+    appName: String,
+    val eventId: Int,
+    hashStr: String
+) {
     val receivedAt = Date()
+    val hash: ByteArray = validate(hashStr)
+    val appName: String = appName.padStart(8, ' ').substring(0, 8)
 
     @Volatile
     var id: Long? = null
         private set
-    val hash: ByteArray
 
-    constructor(hash: String) {
-        // hex reprensentation
+    private fun validate(hash: String): ByteArray {
         if (hash.length != 64) {
-            throw IllegalArgumentException("invalid hash " + hash)
+            throw IllegalArgumentException(String.format("invalid hash '%s' %d", hash, hash.length))
         }
 
         try {
-            this.hash = Hex.decode(hash)
+            return Hex.decode(hash)
         } catch (ex: Exception) {
             throw IllegalArgumentException(hash, ex)
         }
     }
 
-    constructor(hash: ByteArray) {
-        this.hash = hash
+    fun hashForProof(): ByteArray {
+        val data = ByteArrayOutputStream()
+        data.write(appName.toByteArray(StandardCharsets.UTF_8))
+        data.write(eventId)
+        data.write(hash)
+        return data.toByteArray()
     }
 
     fun assignId(id: Long): SigningRequest {
@@ -38,6 +48,6 @@ class SigningRequest {
     }
 
     override fun toString(): String {
-        return String.format("%d: %s", this.id, String(this.hash, StandardCharsets.UTF_8))
+        return String.format("%s: %s", this.id?.toString() ?: "no id yet", String(this.hash, StandardCharsets.UTF_8))
     }
 }
