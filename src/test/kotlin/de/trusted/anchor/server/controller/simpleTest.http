@@ -1,7 +1,7 @@
-GET localhost:8080/sign/hash/8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c856
+GET localhost:8080/sign/hash/8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c856?appName='app'&eventId=1
 
 ### insert second for testing
-GET localhost:8080/sign/hash/8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c857
+GET localhost:8080/sign/hash/8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c857?appName='app'&eventId=1
 
 ### insert third for testing
 GET localhost:8080/sign/hash/8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c858?appName='app'&eventId=1

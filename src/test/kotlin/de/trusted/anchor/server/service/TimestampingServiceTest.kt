@@ -16,14 +16,18 @@ internal class TimestampingServiceTest {
     @Autowired
     lateinit var timestampingService: TimestampingService
 
+    @Autowired
+    lateinit var signingRequestFactory: SigningRequestFactory
+
     @Test
     fun simpleSmokeTest() {
-        val timeStampResponse =
-            timestampingService.timestamp(
-                SigningRequest(
-                    "someapp", 23, "8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c84e"
-                ).assignId(1)
-            )
+        val timeStampResponse = timestampingService.timestamp(
+            signingRequestFactory.create(
+                "someapp",
+                23,
+                "8effc8acf8ebfa15a11efbb4e1a62b3e7cd64f630f3860362361e9e3f064c84e"
+            ).assignId(1)
+        )
 
         assertTrue(timestampingService.validate(timeStampResponse.timeStampToken))
     }
@@ -34,7 +38,7 @@ internal class TimestampingServiceTest {
             (0..1000).map {
                 async(Dispatchers.Default) {
                     val timeStampResponse = timestampingService.timestamp(
-                        SigningRequest(
+                        signingRequestFactory.create(
                             "someapp",
                             23,
                             String.format(
