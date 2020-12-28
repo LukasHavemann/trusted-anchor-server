@@ -53,8 +53,9 @@ class SigningRequest(
 
     fun hashForProof(): ByteArray {
         val data = ByteArrayOutputStream()
-        data.write(appName.toByteArray(StandardCharsets.UTF_8))
-        data.write(eventId)
+        data.write(ByteBuffer.allocate(java.lang.Long.BYTES).putLong(id!!).array())
+        data.write(appName.toByteArray(StandardCharsets.US_ASCII))
+        data.write(ByteBuffer.allocate(Integer.BYTES).putInt(eventId).array())
         data.write(hash)
         return data.toByteArray()
     }

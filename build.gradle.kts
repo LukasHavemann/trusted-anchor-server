@@ -31,7 +31,6 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
-
     testImplementation("io.projectreactor:reactor-test")
 
     // custom dependcys. BlockHound keine Auswirkung in Prod

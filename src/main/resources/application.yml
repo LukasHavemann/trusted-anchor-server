@@ -18,7 +18,7 @@ spring:
 # loadtest configuration
 logging.level:
   root: INFO
-  de.trusted.anchor.server.service: INFO
+  de.trusted.anchor.server.service: DEBUG
 
   reactor:
     netty:

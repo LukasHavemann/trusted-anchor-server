@@ -153,7 +153,7 @@ internal class IncrementalProofTest {
         assertTrue(testee.isEmpty())
 
         testee.add("node".toByteArray(StandardCharsets.UTF_8))
-        assertEquals("node", String(testee.finish(), StandardCharsets.UTF_8))
+        assertEquals("[node]", String(testee.finish(), StandardCharsets.UTF_8).trim())
         assertFalse(testee.isEmpty())
     }
 }
