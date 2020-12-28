@@ -52,7 +52,7 @@ class CollectionService : Loggable {
 
     fun newRound(): Boolean {
         logger().debug("trigger new round")
-        if (!collectionRound.incrementalProof.isEmpty()) {
+        if (!collectionRound.isEmpty()) {
             newRound.set(true)
         }
 
@@ -61,9 +61,10 @@ class CollectionService : Loggable {
 
     fun startCollecting() {
         logger().info("start collecting")
-        collectionRound = CollectionRound()
+        // TODO: 28.12.20 load old hash after restart
+        collectionRound = CollectionRound(null)
         while (true) {
-            if (newRound.get() && !collectionRound.incrementalProof.isEmpty()) {
+            if (newRound.get() && !collectionRound.isEmpty()) {
                 finishOldRoundAndCreateNewOne()
             }
 
@@ -79,9 +80,9 @@ class CollectionService : Loggable {
     }
 
     private fun finishOldRoundAndCreateNewOne() {
-        this.collectionRound.finish()
+        val roundHeadHash = this.collectionRound.finish()
         publicationService.publish(this.collectionRound)
-        this.collectionRound = CollectionRound()
+        this.collectionRound = CollectionRound(roundHeadHash)
     }
 
     private fun publishBacklog() {
@@ -117,7 +118,7 @@ class CollectionService : Loggable {
     }
 }
 
-class CollectionRound {
+class CollectionRound(firstHash: ByteArray?) {
     val roundStart = Instant.now()
     var roundFinish: Instant? = null
         private set
@@ -131,20 +132,21 @@ class CollectionRound {
     )
 
     private val outputStream = BufferedOutputStream(FileOutputStream(filename))
-    var incrementalProof = IncrementalProof(outputStream)
-        private set
+    private val incrementalProof = IncrementalProof(outputStream)
     var head: ByteArray? = null
         private set
 
-    fun add(request: SigningRequest) {
-        incrementalProof.add(request.hashForProof())
+    init {
+        if (firstHash != null) {
+            incrementalProof.add(firstHash)
+        }
     }
 
-    fun flush() {
-        outputStream.flush()
-    }
+    fun add(request: SigningRequest) = incrementalProof.add(request.hashForProof())
 
-    fun finish() {
+    fun flush() = outputStream.flush()
+
+    fun finish(): ByteArray {
         this.roundFinish = Instant.now()
         head = incrementalProof.finish()
         flush()
@@ -154,5 +156,9 @@ class CollectionRound {
         } catch (e: Exception) {
             logger().error("error during close of " + filename, e)
         }
+
+        return head!!
     }
+
+    fun isEmpty(): Boolean = incrementalProof.isEmpty()
 }
