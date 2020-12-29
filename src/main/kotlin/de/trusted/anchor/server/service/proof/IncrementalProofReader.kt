@@ -60,17 +60,15 @@ class IncrementalProofReader(filepath: String) : AutoCloseable {
     private var readPointer: Int = 0
     private var maxFulltreeWidth = readHashCount()
 
-    private val readHashes: List<HashValue> = LinkedList()
+    val readHashes: MutableList<HashValue> = LinkedList()
 
     fun readNextHash(): Hash {
         val hash = readHash()
-        readHashes.plus(hash)
+        readHashes.add(hash)
         if (++readPointer % 2 == 0) {
-            // reached new tree width
             if (BinaryHelper.isPowerOfTwo(readPointer)) {
                 readProofsRecursive(readPointer)
             } else {
-                // generate hashes for completed subtree
                 val subtreeWidth = BinaryHelper.findBiggestBinaryTree(readPointer - maxFulltreeWidth, maxFulltreeWidth)
                 readProofsRecursive(subtreeWidth / 2)
             }
@@ -79,7 +77,14 @@ class IncrementalProofReader(filepath: String) : AutoCloseable {
         return hash
     }
 
-    fun hasNext() : Boolean {
+    fun readLastProofs() {
+        val filelength = raf.length()
+        while (raf.filePointer < (filelength - 32)) {
+            readHashes.add(readProof())
+        }
+    }
+
+    fun hasNext(): Boolean {
         return readPointer < maxFulltreeWidth
     }
 
@@ -88,7 +93,7 @@ class IncrementalProofReader(filepath: String) : AutoCloseable {
             return
         }
 
-        readHashes.plus(readProof())
+        readHashes.add(readProof())
         readProofsRecursive(value / 2)
     }
 

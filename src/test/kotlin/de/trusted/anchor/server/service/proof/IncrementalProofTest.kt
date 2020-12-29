@@ -145,7 +145,8 @@ internal class IncrementalProofTest {
         }
 
         testee.finish()
-        assertEquals(expected12, String(outputStream.toByteArray(), StandardCharsets.UTF_8).trim())
+        // drop last 4 bytes due to size specification
+        assertEquals(expected12, String(outputStream.toByteArray(), StandardCharsets.UTF_8).trim().dropLast(4))
     }
 
     @Test

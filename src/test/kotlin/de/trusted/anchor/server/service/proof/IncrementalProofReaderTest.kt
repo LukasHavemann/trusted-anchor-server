@@ -1,5 +1,6 @@
 package de.trusted.anchor.server.service.proof
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 
@@ -28,6 +29,9 @@ internal class IncrementalProofReaderTest {
             while (reader.hasNext()) {
                 println(reader.readNextHash())
             }
+
+            reader.readLastProofs()
+            assertThat(reader.readHashes.size).isEqualTo(11)
         }
     }
 }

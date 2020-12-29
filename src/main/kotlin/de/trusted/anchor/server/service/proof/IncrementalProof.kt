@@ -54,6 +54,7 @@ class IncrementalProof(
             writeAndRemember(hashTwoTopElements())
         }
 
+        // write width of tree
         outputStream.write(ByteBuffer.allocate(Integer.BYTES).putInt(hashCounter).array())
 
         return hashes.pop()
