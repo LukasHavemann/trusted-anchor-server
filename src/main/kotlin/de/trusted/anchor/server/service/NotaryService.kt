@@ -7,6 +7,7 @@ import de.trusted.anchor.server.service.proof.CollectionService
 import de.trusted.anchor.server.service.timestamping.TimestampingService
 import org.bouncycastle.tsp.TimeStampResponse
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.MonoProcessor
@@ -16,6 +17,7 @@ import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import javax.transaction.Transactional
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Service
 class NotaryService : Loggable {
 
@@ -28,10 +30,20 @@ class NotaryService : Loggable {
     @Autowired
     private lateinit var repository: SignedHashRepository
 
-    private val batchedWorkerPool: BatchedWorkerPool<SigningRequest, TimeStampResponse> = BatchedWorkerPool()
+    @Value("\${trustedanchor.batcher.workerThreads}")
+    private lateinit var workerThreads: Integer
+
+    @Value("\${trustedanchor.batcher.batchSize}")
+    private lateinit var batchSize: Integer
+
+    @Value("\${trustedanchor.batcher.maxColletionTimeMs}")
+    private lateinit var maxColletionTimeMs: Integer
+
+    private lateinit var batchedWorkerPool: BatchedWorkerPool<SigningRequest, TimeStampResponse>
 
     @PostConstruct
     fun init() {
+        batchedWorkerPool = BatchedWorkerPool(workerThreads.toInt(), batchSize.toInt(), maxColletionTimeMs.toInt())
         collectionService.setSerialNumber(repository.getMaxId() ?: 0)
         batchedWorkerPool.start(::handleBatch)
     }

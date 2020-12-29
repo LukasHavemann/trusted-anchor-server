@@ -10,16 +10,13 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.LockSupport
 
-class BatchedWorkerPool<I, O> {
+class BatchedWorkerPool<I, O>(val workerThreads: Int, val batchSize: Int, val maxColletionTimeMs: Int) {
 
-    val toBeProcessed: Queue<Tuple2<I, MonoProcessor<O>>> = ConcurrentLinkedQueue()
-
-    val coreThreads = 12
-
-    val shuttingDown: AtomicBoolean = AtomicBoolean()
+    private val toBeProcessed: Queue<Tuple2<I, MonoProcessor<O>>> = ConcurrentLinkedQueue()
+    private val shuttingDown: AtomicBoolean = AtomicBoolean()
 
     fun start(task: Function1<List<Tuple2<I, MonoProcessor<O>>>, Unit>) {
-        (0..coreThreads).forEach({ CoreThread(it, task).start() })
+        (0..workerThreads).forEach({ CoreThread(it, task).start() })
     }
 
     fun shutdown() {
@@ -68,7 +65,7 @@ class BatchedWorkerPool<I, O> {
 
         override fun run() {
             while (true) {
-                val value = collectBatch(5, 10)
+                val value = collectBatch(batchSize, maxColletionTimeMs)
                 if (value.isEmpty()) {
                     sleep(5)
                     continue

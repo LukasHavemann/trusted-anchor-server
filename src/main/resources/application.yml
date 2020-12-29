@@ -25,3 +25,10 @@ logging.level:
       http:
         server:
           accessLogEnabled: false
+
+
+trustedanchor:
+  batcher:
+    workerThreads: 12
+    batchSize: 5
+    maxColletionTimeMs: 10

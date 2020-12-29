@@ -27,7 +27,7 @@ internal class IncrementalProofReaderTest {
     fun readAll() {
         IncrementalProofReader("src/test/resources/inc-test.testproof").use { reader ->
             while (reader.hasNext()) {
-                println(reader.readNextHash())
+                assertThat(reader.readNextHash()).isNotNull
             }
 
             reader.readLastProofs()
