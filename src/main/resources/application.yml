@@ -32,3 +32,11 @@ trustedanchor:
     workerThreads: 12
     batchSize: 5
     maxColletionTimeMs: 10
+
+  ethereum:
+    url: "http://localhost:7545"
+    gasLimit: 100000
+    gasPrice: 100
+    nonce: 12
+    senderAccount: "0xfa637bd30e5100b77b9bb4ac343e434337cd414b"
+    contractAccount: "0x754dcB6bE1E2a7A2f4b4658a53b0Df256E705E43"

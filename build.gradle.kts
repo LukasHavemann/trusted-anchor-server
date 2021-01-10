@@ -26,7 +26,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     runtimeOnly("org.postgresql:postgresql")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
@@ -38,6 +40,8 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.67")
     implementation("org.apache.logging.log4j:log4j-api:2.8")
     implementation("org.apache.logging.log4j:log4j-core:2.8")
+    implementation("org.web3j:core:5.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.3.1")
 }
 
 tasks.withType<Test> {
