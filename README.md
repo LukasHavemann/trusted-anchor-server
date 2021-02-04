@@ -1,8 +1,8 @@
 # Trusted anchor server
 
-Trusted anchor is a [RFC-3161](https://www.ietf.org/rfc/rfc3161.txt) compatible notariation-service for audit logs.
-Trusted anchor provides a REST interface for the creation of RFC-3161 timestamp to prove existence of events. All event
-hashes are recorded in rounds and stored in a history tree. The history tree itself or the root hash can be published in
+Trusted anchor is a [RFC-3161](https://www.ietf.org/rfc/rfc3161.txt) compatible notarisation service for audit logs.
+Trusted anchor provides a REST interface for the creation of RFC-3161 timestamp to prove existence of events to third parties. 
+Event hashes are recorded in rounds and stored in a history tree. The history tree itself or the root hash can be published in
 a public medium like a blockchain to prevent tampering of event data or timestamps.
 
 This is a prototyp implementation for my masterthesis
